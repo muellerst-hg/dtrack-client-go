@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -191,6 +192,29 @@ func withBody(body interface{}) requestOption {
 
 		req.Body = io.NopCloser(bodyBuf)
 		req.Header.Set("Content-Type", contentType)
+
+		return nil
+	}
+}
+
+func withMultiPart(body url.Values) requestOption {
+	return func(req *http.Request) error {
+		if body == nil {
+			return nil
+		}
+
+		var bodyBuf bytes.Buffer
+		multipartWriter := multipart.NewWriter(&bodyBuf)
+		for key, valueList := range body {
+			for _, value := range valueList {
+				fw, _ := multipartWriter.CreateFormField(key)
+				_, _ = fw.Write([]byte(value))
+			}
+		}
+
+		_ = multipartWriter.Close()
+		req.Body = io.NopCloser(&bodyBuf)
+		req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
 
 		return nil
 	}
