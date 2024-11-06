@@ -6,6 +6,7 @@
 
 *Go client library for [OWASP Dependency-Track](https://dependencytrack.org/)*
 
+
 ## Introduction
 
 *client-go* is a Go library to interact with Dependency-Track's REST API, making it easy to implement
